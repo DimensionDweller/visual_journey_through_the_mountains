@@ -51,11 +51,11 @@ def create_map(latitudes, longitudes):
     return m
 
 def add_polyline_to_map(m, positions):
-        # Add the hiking route as a polyline with elevation encoded in color
-    positions = list(zip(latitudes, longitudes, elevations))
+    # Add the hiking route as a polyline with elevation encoded in color
+    latitudes, longitudes, elevations = zip(*positions)
 
     # Determine elevation ranges for color coding
-    elevation_ranges = np.linspace(elevations.min(), elevations.max(), 5)  # 5 is the number of ranges you want to create
+    elevation_ranges = np.linspace(min(elevations), max(elevations), 5)  # 5 is the number of ranges you want to create
 
     # Create color map (replace with your preferred colors)
     colors = ['green', 'yellow', 'orange', 'red']
@@ -65,7 +65,7 @@ def add_polyline_to_map(m, positions):
         for j in range(len(positions) - 1):
             lat, lon, elev = positions[j]
             next_lat, next_lon, next_elev = positions[j + 1]
-            if elev >= elevation_ranges[i] and elev < elevation_ranges[i + 1] and next_elev >= elevation_ranges[i] and next_elev < elevation_ranges[i + 1]:
+            if elevation_ranges[i] <= elev < elevation_ranges[i + 1] and elevation_ranges[i] <= next_elev < elevation_ranges[i + 1]:
                 segment.append((lat, lon))
             else:
                 if len(segment) > 0:
@@ -115,7 +115,7 @@ def add_photos_to_map(m, photo_dir):
                       icon=folium.Icon(icon="cloud")).add_to(m)
 
 def main(start_date, end_date, photo_dir, map_file):
-    gpx_directory = '/Volumes/External_Samsung_T7/Data Science/apple_health_export_5_23/workout-routes/'
+    gpx_directory = '/workout-routes/'
     gpx_data = extract_gpx_data_in_date_range(gpx_directory, start_date, end_date)
     workouts_df = pd.DataFrame(gpx_data)
 
@@ -135,14 +135,14 @@ if __name__ == "__main__":
     main(
         start_date=datetime(2022, 8, 1, tzinfo=pytz.UTC),
         end_date=datetime(2022, 8, 5, tzinfo=pytz.UTC),
-        photo_dir='/Volumes/External_Samsung_T7/Data Science/apple_health_export_5_23/Mt Rainer Photos/',
+        photo_dir='Mt Rainer Photos',
         map_file='mt_rainer_map.html'
     )
 
     main(
         start_date=datetime(2022, 8, 8, tzinfo=pytz.UTC),
         end_date=datetime(2022, 8, 12, tzinfo=pytz.UTC),
-        photo_dir='/Volumes/External_Samsung_T7/Data Science/apple_health_export_5_23/Copper Ridge Photos/',
+        photo_dir='Copper Ridge',
         map_file='copper_ridge_map.html')
 
 
