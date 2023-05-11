@@ -46,8 +46,10 @@ def extract_gpx_data_in_date_range(directory, start_date, end_date):
 
 
 
-def create_map(latitudes, longitudes):
-    m = folium.Map(location=[latitudes.mean(), longitudes.mean()], zoom_start=10, tiles='https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png', attr='Map tiles by Stamen Design, CC BY 3.0 — Map data © OpenStreetMap')
+def create_map(latitudes, longitudes, elevations):
+    m = folium.Map(location=[np.mean(latitudes), np.mean(longitudes)], zoom_start=10,
+                   tiles='https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
+                   attr='Map tiles by Stamen Design, CC BY 3.0 — Map data © OpenStreetMap')
     return m
 
 def add_polyline_to_map(m, positions):
@@ -94,28 +96,29 @@ def add_markers_to_map(m, positions):
     max_elevation_marker.add_to(m)
 
 def add_photos_to_map(m, photo_dir):
-    # Get a list of all jpeg files in the directory
-    photo_files = [os.path.join(photo_dir, file) for file in os.listdir(photo_dir) if file.endswith('.jpeg')]
-    for photo_file in photo_files:
-        # Extract the geographic metadata from the photo
-        data = gpsphoto.getGPSData(photo_file)
-        lat = data['Latitude']
-        lon = data['Longitude']
+    for photo_file in os.listdir(photo_dir):
+        if photo_file.endswith('.jpeg'):
+            file_path = os.path.join(photo_dir, photo_file)
+            data = gpsphoto.getGPSData(file_path)
+            lat = data['Latitude']
+            lon = data['Longitude']
 
-        # Open and convert image to base64
-        b = io.BytesIO()
-        im = Image.open(photo_file)
-        im.thumbnail((80, 80))  # Adjust as needed
-        im.save(b, format='PNG')
-        b64 = base64.b64encode(b.getvalue())
+            # Open and convert image to base64
+            b = io.BytesIO()
+            im = Image.open(file_path)
+            im.thumbnail((80, 80))  # Adjust as needed
+            im.save(b, format='PNG')
+            b64 = base64.b64encode(b.getvalue()).decode("utf-8")
 
-        # Create a marker at the photo's coordinates with the photo in its popup
-        folium.Marker(location=[lat, lon], 
-                      popup=f'<img src="data:image/png;base64,{ b64.decode("utf-8") }">', 
-                      icon=folium.Icon(icon="cloud")).add_to(m)
+            # Create a marker at the photo's coordinates with the photo in its popup
+            html = f'<img src="data:image/png;base64,{b64}">'
+            iframe = folium.IFrame(html=html, width=200, height=200)
+            popup = folium.Popup(iframe, max_width=400)
+            folium.Marker(location=[lat, lon], popup=popup, icon=folium.Icon(icon="cloud")).add_to(m)
+
 
 def main(start_date, end_date, photo_dir, map_file):
-    gpx_directory = '/workout-routes/'
+    gpx_directory = 'workout-routes'
     gpx_data = extract_gpx_data_in_date_range(gpx_directory, start_date, end_date)
     workouts_df = pd.DataFrame(gpx_data)
 
@@ -127,7 +130,7 @@ def main(start_date, end_date, photo_dir, map_file):
     add_markers_to_map(m, positions)
 
     photo_files = [os.path.join(photo_dir, file) for file in os.listdir(photo_dir) if file.endswith('.jpeg')]
-    add_photos_to_map(m, photo_files)
+    add_photos_to_map(m, photo_dir)
 
     m.save(map_file)
 
