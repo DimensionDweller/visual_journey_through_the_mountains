@@ -22,31 +22,28 @@ def extract_gpx_data_in_date_range(directory, start_date, end_date):
     for file in os.listdir(directory):
         if file.endswith(".gpx"):
             file_path = os.path.join(directory, file)
-            with open(file_path, 'r') as gpx_file:
-                gpx = gpxpy.parse(gpx_file)
-                for track in gpx.tracks:
-                    for segment in track.segments:
-                        for point in segment.points:
-                            point_date = point.time.replace(tzinfo=pytz.UTC)
-                            if start_date <= point_date < end_date:
-                                data_point = {
-                                    'latitude': point.latitude,
-                                    'longitude': point.longitude,
-                                    'elevation': point.elevation,
-                                    'time': point_date
-                                }
-                                gpx_data.append(data_point)
-
+            try:
+                with open(file_path, 'r') as gpx_file:
+                    gpx = gpxpy.parse(gpx_file)
+                    for track in gpx.tracks:
+                        for segment in track.segments:
+                            for point in segment.points:
+                                point_date = point.time.replace(tzinfo=pytz.UTC)
+                                if start_date <= point_date < end_date:
+                                    data_point = {
+                                        'latitude': point.latitude,
+                                        'longitude': point.longitude,
+                                        'elevation': point.elevation,
+                                        'time': point_date
+                                    }
+                                    gpx_data.append(data_point)
+            except IOError:
+                print(f"Could not read file: {file_path}")
+            except Exception as e:
+                print(f"Unexpected error: {e}")
     return gpx_data
 
 
-
-#def get_dataframe(gpx_data):
-  #  gpx_directory = '/Volumes/External_Samsung_T7/Data Science/apple_health_export_5_23/workout-routes/'
-   # start_date = datetime(2022, 8, 1, tzinfo=pytz.UTC)
-  #  end_date = datetime(2022, 9, 1, tzinfo=pytz.UTC)
-   # gpx_data = extract_gpx_data_in_date_range(gpx_directory, start_date, end_date)
-   # return pd.DataFrame(gpx_data)
 
 
 def create_map(latitudes, longitudes):
