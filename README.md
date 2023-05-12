@@ -75,7 +75,3 @@ Contributions are welcome! If you encounter any problems or have suggestions for
 
 This project is licensed under the terms of the MIT license.
 
----
-
-Please replace `yourusername` in the `git clone` command with your actual GitHub username. The structure and contents of the README can be further refined according to your project's needs. The purpose of this README is to provide the necessary information for someone (including your future self) to understand what the project does, how to set it up, and how to use it.
-
