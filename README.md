@@ -3,7 +3,7 @@
 This project visualizes your hiking journey using the route data exported from Apple Health and photos taken along the way. The final output is an interactive map with your route, altitude changes color-coded, and photos placed on their respective geolocations.
 
 ## Check it out here:
-![image](https://645d6ec1cbb79215784d693d--enchanting-palmier-8f33ef.netlify.app)
+![link](https://645d6ec1cbb79215784d693d--enchanting-palmier-8f33ef.netlify.app)
 
 ## Table of Contents
 
